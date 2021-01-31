@@ -8,24 +8,24 @@ namespace ecb_stats_reader
 {
     class Entry
     {
-        private DateTime date;
+        private string abbreviation;
         private double rate;
 
-        public Entry(DateTime d, double r)
+        public Entry(string a, double r)
         {
-            date = d;
+            abbreviation = a;
             rate = r;
         }
 
-        public DateTime Date
+        public string Abbreviation
         {
             get
             {
-                return date;
+                return abbreviation;
             }
             set
             {
-                date = value;
+                abbreviation = value;
             }
         }
 

@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Cube.cs" />
     <Compile Include="Currency.cs" />
     <Compile Include="Entry.cs" />
     <Compile Include="Program.cs" />

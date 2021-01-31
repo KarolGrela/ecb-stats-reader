@@ -41,29 +41,54 @@ namespace ecb_stats_reader
             Console.WriteLine(parsedDate.DayOfWeek);
             */
             XmlNode node = xmlDoc.DocumentElement;
-            XmlNode secondCube = node.FirstChild.NextSibling.NextSibling.FirstChild;
+            XmlNode currentCube = node.FirstChild.NextSibling.NextSibling.FirstChild;
             
             
 
             var from = DateTime.Parse("2021-01-21");
             var to = DateTime.Parse("2021-01-26");
-            var index_date = to;
-            do
+            var indexDate = to;
+
+            XmlAttributeCollection currentAtributeCollection = currentCube.Attributes;
+            // do the loop as long as currentCube is after or equal to from
+            while (DateTime.Compare(DateTime.Parse(currentAtributeCollection[0].Value), from) != -1)
             {
-                XmlAttributeCollection attr = secondCube.Attributes;
-                if(index_date == DateTime.Parse(attr[0].Value))
+
+                // if index and currentCube attribute are equal, we can:
+                // 1) save data
+                // 2) go 4 ward (both index and current)
+                if (DateTime.Compare(indexDate, DateTime.Parse(currentAtributeCollection[0].Value)) == 0)
                 {
-                    Console.WriteLine(attr[0].Value);
-                    secondCube = secondCube.NextSibling;
+                    Console.WriteLine("If was true!");
+                    Console.WriteLine("current: " + DateTime.Parse(currentAtributeCollection[0].Value));    // "save" data (dummy code)
+                    Console.WriteLine("index: " + indexDate);                               // "save" data (dummy code)
 
+                    currentCube = currentCube.NextSibling;                  // move current
+                    if(indexDate.DayOfWeek != DayOfWeek.Monday)
+                    {
+                        indexDate = indexDate.AddDays(-1);                                  // move index one day backwards
+                    }
+                    else
+                    {
+                        indexDate = indexDate.AddDays(-3);                                  // move index (from monday to friday)
+                    }
+                    
                 }
-                Console.WriteLine(DateTime.Parse(attr[0].Value));
-                Console.WriteLine(index_date);
-                Console.WriteLine("_______________________");
+                else
+                {
+                    // move only current cube
+                    Console.WriteLine("If was false!");
+                    Console.WriteLine("current: " + currentAtributeCollection[0].Value);    // "save" data (dummy code)
+                    Console.WriteLine("index: " + indexDate);                               // "save" data (dummy code)
+                    currentCube = currentCube.NextSibling;                  // move current
+                }
 
-                
-                index_date = index_date.AddDays(-1);
-            } while (index_date != from);
+
+
+                Console.WriteLine("_______________________");
+                currentAtributeCollection = currentCube.Attributes;
+            }
+
             
 
             /*
@@ -78,5 +103,8 @@ namespace ecb_stats_reader
 
             Console.ReadLine();
         }
+
+
+
     }
 }
