@@ -49,6 +49,8 @@ namespace ecb_stats_reader
             var to = DateTime.Parse("2021-01-26");
             var indexDate = to;
 
+            List<Cube> cubes = new List<Cube>();
+
             XmlAttributeCollection currentAtributeCollection = currentCube.Attributes;
             // do the loop as long as currentCube is after or equal to from
             while (DateTime.Compare(DateTime.Parse(currentAtributeCollection[0].Value), from) != -1)
@@ -60,6 +62,7 @@ namespace ecb_stats_reader
                 if (DateTime.Compare(indexDate, DateTime.Parse(currentAtributeCollection[0].Value)) == 0)
                 {
                     Console.WriteLine("If was true!");
+                    cubes.Add(new Cube(currentCube));   // save data to Cube
                     Console.WriteLine("current: " + DateTime.Parse(currentAtributeCollection[0].Value));    // "save" data (dummy code)
                     Console.WriteLine("index: " + indexDate);                               // "save" data (dummy code)
 
@@ -84,13 +87,24 @@ namespace ecb_stats_reader
                 }
 
 
+                
 
                 Console.WriteLine("_______________________");
                 currentAtributeCollection = currentCube.Attributes;
             }
 
-            
 
+            Console.WriteLine("Cubes count: " + cubes.Count());
+
+            foreach (Cube cube in cubes)
+            {
+                Console.WriteLine("date: " + cube.Date);
+                foreach (Entry entry in cube.Entries)
+                {
+                    Console.WriteLine(entry.Abbreviation + " rate: " + entry.Rate);
+                }
+                Console.WriteLine("_______________________");
+            }
             /*
             // date time
             var date1 = DateTime.Parse("2021-01-26");

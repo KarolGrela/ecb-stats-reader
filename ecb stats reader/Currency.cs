@@ -69,7 +69,8 @@ namespace ecb_stats_reader
             // if Count == 0 (empty list)
             if(index >= entries.Count() || index < 0 || entries.Count() == 0)
             {
-                return new Entry(DateTime.MinValue, 0.0);   // return empty entry
+                DateTime now = DateTime.MinValue;
+                return new Entry(now.ToString(), 0.0);   // return empty entry
             }
             else
             {
@@ -81,7 +82,8 @@ namespace ecb_stats_reader
         {
             if(entries.Count() == 0)
             {
-                return new Entry(DateTime.MinValue, 0.0);   // return empty entry
+                DateTime now = DateTime.MinValue;
+                return new Entry(now.ToString(), 0.0);   // return empty entry
             }
             else
             {
@@ -173,6 +175,11 @@ namespace ecb_stats_reader
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="to"></param>
+        /// <param name="from"></param>
         private void CreateEntries(DateTime to, DateTime from)
         {
 
