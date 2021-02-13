@@ -9,6 +9,7 @@ namespace ecb_stats_reader
 {
     /// <summary>
     /// List of cubes taken from adjusted ranges of time
+    /// Also contains and manages to- and from- dates
     /// </summary>
     class Range
     {
@@ -17,7 +18,7 @@ namespace ecb_stats_reader
         private const string xmlPath = "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist.xml";  
         // list of cubes (date + entry) in range
         private List<Cube> cubes;
-        //
+        // 
         private XmlNode node;
         // range of dates requested by user (input)
         private DateTime to;        
@@ -28,13 +29,19 @@ namespace ecb_stats_reader
 
         #region Getters and setters
         
-        public List<Cube> Cubes
+        public Cube GetCubeNo(int i)
+        {
+            return cubes[i];            
+        }
+
+        public int GetCubesCount
         {
             get
             {
-                return cubes;
+                return cubes.Count;
             }
         }
+
 
         public DateTime To
         {
@@ -70,25 +77,45 @@ namespace ecb_stats_reader
 
         #endregion
 
-        public Range(DateTime t, DateTime f)
+        public Range(DateTime f, DateTime t)
         {
             // save dates
             to = t;
             from = f;
             // adjust dates
-            adjustedTo = DateVerification(to);
-            adjustedFrom = DateVerification(from);
+            adjustedTo = DateVerification(to, true);
+            adjustedFrom = DateVerification(from, false);
             // initialize list
             cubes = new List<Cube>();
             // read from XML
-            // find first cube
+            // create and initialize XML Document variable
+            XmlDocument xmlDoc = new XmlDocument();
+            xmlDoc.Load(xmlPath);
+            // initialize node variable
+            node = xmlDoc.DocumentElement;
+            // set currentCube as <Cube time="..."> node
             XmlNode currentCube = node.FirstChild.NextSibling.NextSibling.FirstChild;
             // get attributes
             XmlAttributeCollection attr = currentCube.Attributes;
-            // find "to" date
-            while()
+            // find "to" date in XML
+            // while date of current cube date is later than adjustedTo
+            // if stops if current cube has date equal to adjustedTo
+            while(DateTime.Compare(DateTime.Parse(attr[0].Value), adjustedTo)  == 1 )
+            {
+                // go to next sibling
+                currentCube = currentCube.NextSibling;
+                attr = currentCube.Attributes;
+            }
 
-            // date 
+            // go through file and save following cubes untill finding from date cube (exactly - after finding first earlier date than adjustedFrom)
+            while (DateTime.Compare(DateTime.Parse(attr[0].Value), AdjustedFrom) != -1)
+            {
+                // save data to cube
+                cubes.Add(new Cube(currentCube));
+                // go to next sibling
+                currentCube = currentCube.NextSibling;
+                attr = currentCube.Attributes;
+            }
         }
 
 
@@ -98,12 +125,13 @@ namespace ecb_stats_reader
         /// Verifies if date is:
         ///     latter (or equal to) earliest date (if not will be moved to first appropriate date) - DONE
         ///     before today (if not will be moved to first appropriate date)
-        ///     at the weekend (if not will be moved to first appropriate date)
+        ///     at the weekend ("from" date will be moved to next monday (provided it is not in the future), "to" date will be moved to last friday)
         /// Direction of movement of dates (on days weekend) depends to value of char "mode"
         /// </summary>
         /// <param name="date"> verified date </param>
+        /// <param name="fromDate"> true if passed date is "from" date, false if the date is a "to" date </param>
         /// <returns></returns>
-        private DateTime DateVerification(DateTime date)
+        private DateTime DateVerification(DateTime date, bool fromDate)
         {
             // CHECK IF date IS BEFORE EARLIEST POSSIBLE DATE
             DateTime _earliest = DateTime.Parse(earliest_date);     // create DateTime with earliest possible date
@@ -128,11 +156,45 @@ namespace ecb_stats_reader
                 // CHECK IF date IS ON THE WEEKEND
                 if (date.DayOfWeek == DayOfWeek.Saturday)
                 {
-                    date = DateTime.Today.AddDays(-1);  // set date to firday
+                    // "from" date is moved backward, "to" date is moved forward
+                    if(fromDate)
+                    {
+                        date = date.AddDays(-1);  // set date to last friday
+                    }
+                    else
+                    // "to" date - is moved forward, unless moving forward means reading future data
+                    {
+                        // if next monday IS NOT today or IS NOT in the future (new date is before today)
+                        if (DateTime.Compare(date.AddDays(1), DateTime.Today) == -1)
+                        {
+                            date = date.AddDays(2);  // set date to next (following) monday
+                        }
+                        else
+                        {
+                            date = date.AddDays(-1);  // set date to last firday
+                        }
+                    }
                 }
                 else if (date.DayOfWeek == DayOfWeek.Sunday)
                 {
-                    date = DateTime.Today.AddDays(-2);  // set date to firday
+                    // "from" date is moved backward, "to" date is moved forward
+                    if (fromDate)   // "from" date
+                    {
+                        date = date.AddDays(-2);  // set date to last firday
+                    }
+                    else
+                    // "to" date - is moved forward, unless moving forward means reading future data
+                    {
+                        // if next monday IS NOT today or IS NOT in the future (new date is before today)
+                        if (DateTime.Compare(date.AddDays(1), DateTime.Today)== -1)
+                        {
+                            date = date.AddDays(1);  // set date to next (following) monday
+                        }                           
+                        else
+                        {
+                            date = date.AddDays(-2);  // set date to last firday
+                        }
+                    }
                 }
 
                 return date;

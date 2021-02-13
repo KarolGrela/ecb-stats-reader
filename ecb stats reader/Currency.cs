@@ -8,16 +8,20 @@ using System.Xml;
 
 namespace ecb_stats_reader
 {
+    /// <summary>
+    /// List of rates of a given currency
+    /// </summary>
     class Currency
     {
-        private const string earliest_date = "1999-01-04";
-        private const string xmlPath = "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist.xml"; 
-        private List<Entry> entries;    // list of values of 
-        private string name;
-        private string abbreviation;
-        private DateTime toDate;
-        private DateTime fromDate;
+        private List<Entry> entries;    // to delete
+        private List<double> rates;    // list of rate values
+        private List<DateTime> dates;   // lsit of dates
+        private string name;            // name of currency
+        private string abbreviation;    // abbreviation of currency name
+        private DateTime fromDate;      // "from" date
+        private DateTime toDate;        // "to" date
 
+        private string earliest_date; // to delete
         /// <summary>
         /// 
         /// </summary>

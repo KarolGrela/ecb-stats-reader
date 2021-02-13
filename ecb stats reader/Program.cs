@@ -40,6 +40,7 @@ namespace ecb_stats_reader
             var parsedDate = DateTime.Parse(attr[0].Value);
             Console.WriteLine(parsedDate.DayOfWeek);
             */
+            /*
             XmlNode node = xmlDoc.DocumentElement;
             XmlNode currentCube = node.FirstChild.NextSibling.NextSibling.FirstChild;
             
@@ -105,6 +106,8 @@ namespace ecb_stats_reader
                 }
                 Console.WriteLine("_______________________");
             }
+            */
+
             /*
             // date time
             var date1 = DateTime.Parse("2021-01-26");
@@ -113,7 +116,12 @@ namespace ecb_stats_reader
             Console.WriteLine(result);
             */
 
+            var from = DateTime.Today.AddDays(-2);
+            var to = DateTime.Today.AddDays(-1);
 
+            Range request = new Range(from, to);
+
+            Console.WriteLine(request.GetCubesCount);
 
             Console.ReadLine();
         }

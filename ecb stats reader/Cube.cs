@@ -8,6 +8,12 @@ using System.Globalization; // func. used: CultureInfo
 
 namespace ecb_stats_reader
 {
+    /// <summary>
+    /// Cube class - stores data from one cube:
+    /// * date
+    /// * list of entries
+    /// * XmlNode variable
+    /// </summary>
     class Cube
     {
         private List<Entry> entries;
@@ -15,7 +21,7 @@ namespace ecb_stats_reader
         private XmlNode nodeCube;
 
         /// <summary>
-        /// Reads date and list of entries from node
+        /// Reads and stores date and list of entries from node
         /// </summary>
         /// <param name="node"> Cube node (second level) from which data is read </param>
         public Cube(XmlNode node)
@@ -24,7 +30,7 @@ namespace ecb_stats_reader
             entries = new List<Entry>();    // initialize list
             XmlAttributeCollection attr = node.Attributes;  // get collection of attributes
             date = DateTime.Parse(attr[0].Value);   // save date
-            // create list of child nodes (entries) and loop through it
+            // create list of child nodes (entries) and loop through it in order to get abbreviation and data
             XmlNodeList childNodes = node.ChildNodes;
             foreach (XmlNode child in childNodes)
             {
