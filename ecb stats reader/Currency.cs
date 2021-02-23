@@ -13,6 +13,9 @@ namespace ecb_stats_reader
     /// </summary>
     class Currency
     {
+        // constant parameters
+        private const string earliest_date = "1999-01-04";  // earliest possible date
+        private const string xmlPath = "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist.xml";
         private List<Entry> entries;    // to delete
         private List<double> rates;    // list of rate values
         private List<DateTime> dates;   // lsit of dates
@@ -21,7 +24,6 @@ namespace ecb_stats_reader
         private DateTime fromDate;      // "from" date
         private DateTime toDate;        // "to" date
 
-        private string earliest_date; // to delete
         /// <summary>
         /// 
         /// </summary>

@@ -12,9 +12,14 @@ namespace ecb_stats_reader
     /// </summary>
     class Entry
     {
-        private string abbreviation;
-        private double rate;
+        private string abbreviation;    // three-letter abbreviation
+        private double rate;            // value of rate
    
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="a"> passed abbreviation </param>
+        /// <param name="r"> passed value of rate </param>
         public Entry(string a, double r)
         {
             abbreviation = a;

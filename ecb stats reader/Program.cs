@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 
+
 // https://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist.xml <- link to historical data
 // https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml <- link to daily data
 
@@ -14,7 +15,7 @@ namespace ecb_stats_reader
     {
         static void Main(string[] args)
         {
-            
+
             // download xml document
             XmlDocument xmlDoc = new XmlDocument();
             xmlDoc.Load("https://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist.xml");
@@ -115,18 +116,41 @@ namespace ecb_stats_reader
             int result = DateTime.Compare(date1, date2); // result = 1 if date1 is AFTER date2, 0 - the same day, -1 when date1 is BEFORE
             Console.WriteLine(result);
             */
-
+            /*
             var from = DateTime.Today.AddDays(-2);
             var to = DateTime.Today.AddDays(-1);
 
             Range request = new Range(from, to);
 
             Console.WriteLine(request.GetCubesCount);
+            */
+            /*
+            string[] lines = System.IO.File.ReadAllLines(@"../../../ecb stats reader/currencies.csv");
+            List<CurrencyName> Names = new List<CurrencyName>();
+            foreach (string line in lines)
+            {
+                string[] words = line.Split(';');
+
+                CurrencyName name = new CurrencyName();
+                name.abbreviation = words[0];
+                name.name = words[1];
+                Names.Add(name);
+            }
+            */
+
+            CurrencyNameList.Generate();
+
+            foreach (CurrencyName name in CurrencyNameList.Get())
+            {
+                Console.WriteLine(name.abbreviation + " is " + name.name);
+            }
+
+
 
             Console.ReadLine();
         }
 
-
+    
 
     }
 }

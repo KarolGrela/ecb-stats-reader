@@ -46,6 +46,7 @@
     <Compile Include="Cube.cs" />
     <Compile Include="Currency.cs" />
     <Compile Include="Entry.cs" />
+    <Compile Include="CurrencyNameList.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Range.cs" />
