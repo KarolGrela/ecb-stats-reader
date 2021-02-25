@@ -138,14 +138,37 @@ namespace ecb_stats_reader
             }
             */
 
+            /*
+             * Generate List of names and abbreviations
+             */
             CurrencyNameList.Generate();
-
             foreach (CurrencyName name in CurrencyNameList.Get())
             {
                 Console.WriteLine(name.abbreviation + " is " + name.name);
             }
 
+            /*
+             * Generate Range
+             */
+            Range range = new Range(new DateTime(2021, 2, 13), DateTime.Now.AddDays(3));
 
+            /*
+             * Generate Currency List
+             */
+            Currency dollar = new Currency("dollar", "USD", range);
+
+            Console.WriteLine(dollar.GetDatesCount() + " " + dollar.GetRatesCount());
+
+            for (int i = 0; i < dollar.GetDatesCount(); i++)
+            {
+                Console.WriteLine();
+                Console.Write("i: " + (i+1) + "   ");
+                Console.Write(dollar.GetDateByIndex(i).Date + "  ");
+                Console.WriteLine(dollar.GetRateByIndex(i));
+                Console.WriteLine();
+            }
+
+               
 
             Console.ReadLine();
         }

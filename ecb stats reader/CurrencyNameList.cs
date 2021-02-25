@@ -19,7 +19,7 @@ namespace ecb_stats_reader
     /// Class geberating list of CurrencyName
     /// This class utilizes static mrthods and variables
     /// </summary>
-    class CurrencyNameList
+    static class CurrencyNameList
     {
         private const string path = @"../../../ecb stats reader/currencies.csv";    // path to .csv file
         static private List<CurrencyName> names;                                    // list of CurrencyName instances

@@ -62,11 +62,11 @@ namespace ecb_stats_reader
             return entries[index];
         }
 
-        public List<Entry> Entries
+        public int GetEntriesCount
         {
             get
             {
-                return entries;
+                return entries.Count;
             }
         }
         #endregion

@@ -13,89 +13,85 @@ namespace ecb_stats_reader
     /// </summary>
     class Currency
     {
-        // constant parameters
-        private const string earliest_date = "1999-01-04";  // earliest possible date
-        private const string xmlPath = "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist.xml";
-        private List<Entry> entries;    // to delete
-        private List<double> rates;    // list of rate values
-        private List<DateTime> dates;   // lsit of dates
+        // Input Fields
         private string name;            // name of currency
         private string abbreviation;    // abbreviation of currency name
-        private DateTime fromDate;      // "from" date
-        private DateTime toDate;        // "to" date
+        private Range range;
+        private DateTime toDate;        // "to" date (adjusted)
+        private DateTime fromDate;      // "from" date (adjusted)
+        
+        // output fields
+        private List<double> rates;     // list of rate values
+        private List<DateTime> dates;   // list of dates
 
         /// <summary>
-        /// 
+        /// Inputs: Range, abbreviation of vurrency and other auxiliary data
+        /// Outputs: Lists of dates (X axis) and rate values (Y axis)
         /// </summary>
         /// <param name="n"> name of currency </param>
         /// <param name="a"> three letter Aabbreviation</param>
-        /// <param name="to"> data will be gathered up to this date </param>
-        /// <param name="from"> data will be gather to this date </param>
-        public Currency(string n, string a, DateTime to, DateTime from)
+        public Currency(string n, string a, Range r)
         {
+            // save constructor inputs to fields
             name = n;
             abbreviation = a;
+            range = r;
+            toDate = range.AdjustedTo;
+            fromDate = range.AdjustedFrom;
 
-            // verify if dates are adecuate, move them if neccessary
-            DateTime newTo = DateVerification(to);
-            DateTime newFrom = DateVerification(from);
-            // if newFrom is after newTo
-            if (DateTime.Compare(newTo, newFrom) == -1)
-            {
-                newFrom = newTo;
-            }
-
-            // save values of dates
-            toDate = newTo;
-            fromDate = newFrom;
-
-            // create List<Entry> entries
-            CreateEntries(to, from);
+            // create Lists of dates and rates
+            (rates, dates) =  CreateEntries(abbreviation, range);
         }
 
         #region Getters and Setter
         /*
-         * entries
+         * dates
          */
-        // add entry to the end of the list
-        public void AddEntry(Entry e)
+        // get amount of dates in the list (length of list)
+        public int GetDatesCount()
         {
-            entries.Add(e);
+            return dates.Count();
         }
-        // get amount of entries (length of list)
-        public int GetEntriesLength()
-        {
-            return entries.Count();
-        }
-        // get entry by index
-        public Entry GetEntryIndex(int index)
+        // get date by index
+        public DateTime GetDateByIndex(int index)
         {
             // if index is bigger than Count (bigger or equal because indexing from 0)
             // if index < 0 (inadequate value)
             // if Count == 0 (empty list)
-            if(index >= entries.Count() || index < 0 || entries.Count() == 0)
+            if(index >= dates.Count() || index < 0 || dates.Count() == 0)
             {
-                DateTime now = DateTime.MinValue;
-                return new Entry(now.ToString(), 0.0);   // return empty entry
+                return DateTime.MinValue;   // return min value
             }
             else
             {
-                return entries[index];      // return entry
+                return dates[index];      // return date
             }
         }
-        // get last entry
-        public Entry GetLastEntry()
+
+        /*
+         * rates
+         */
+        // get amount of rates in the list (length of list)
+        public int GetRatesCount()
         {
-            if(entries.Count() == 0)
+            return rates.Count();
+        }
+        // get rate by index
+        public double GetRateByIndex(int index)
+        {
+            // if index is bigger than Count (bigger or equal because indexing from 0)
+            // if index < 0 (inadequate value)
+            // if Count == 0 (empty list)
+            if (index >= rates.Count() || index < 0 || rates.Count() == 0)
             {
-                DateTime now = DateTime.MinValue;
-                return new Entry(now.ToString(), 0.0);   // return empty entry
+                return 0.0;   // return min value
             }
             else
             {
-                return entries[entries.Count - 1];          // return last entry
+                return rates[index];      // return date
             }
         }
+
 
         /*
          * Name
@@ -113,10 +109,7 @@ namespace ecb_stats_reader
          */
         public string Abbreviation
         {
-            get
-            {
-                return Abbreviation;
-            }
+            get => abbreviation;         
         }
 
         /*
@@ -136,63 +129,66 @@ namespace ecb_stats_reader
 
         #region Private Methods
 
-        /// <summary>
-        /// Verifies if date is:
-        ///     latter (or equal to) earliest date (if not will be moved to first appropriate date) - DONE
-        ///     before today (if not will be moved to first appropriate date)
-        ///     at the weekend (if not will be moved to first appropriate date)
-        /// Direction of movement of dates (on days weekend) depends to value of char "mode"
-        /// </summary>
-        /// <param name="date"> verified date </param>
-        /// <returns></returns>
-        private DateTime DateVerification(DateTime date)
-        {
-            // CHECK IF date IS BEFORE EARLIEST POSSIBLE DATE
-            DateTime _earliest = DateTime.Parse(earliest_date);     // create DateTime with earliest possible date
-            int result = DateTime.Compare(date, _earliest);         // compare passed date with the earliest possible date
-            // date is before the _earliest
-            if(result==-1)
-            {
-                return _earliest;   // set the date as the earliest possible
-            }
-            else
-            {
-                // check other possibilities for inadequate date
-
-                // CHECK IF date IS TODAY OR LATER
-                result = DateTime.Compare(date, DateTime.Today);
-                // date is after or equal to today
-                if(result==1 || result==0)
-                {
-                    date = DateTime.Today.AddDays(-1);  // set date to day before today
-                }
-
-                // CHECK IF date IS ON THE WEEKEND
-                if(date.DayOfWeek == DayOfWeek.Saturday)
-                {
-                    date = DateTime.Today.AddDays(-1);
-                }
-                else if (date.DayOfWeek == DayOfWeek.Sunday)
-                {
-                    date = DateTime.Today.AddDays(-2);
-                }
-
-                return date;
-            }
-        }
 
         /// <summary>
-        /// 
+        /// Loops through Cubes and entries in order to extract lists of rates and dates
         /// </summary>
-        /// <param name="to"></param>
-        /// <param name="from"></param>
-        private void CreateEntries(DateTime to, DateTime from)
+        /// <param name="abb"></param>
+        /// <param name="r"></param>
+        /// <returns>
+        /// Item1 - rateList - list of rate values
+        /// Item2 - dateList - list of dates values
+        /// </returns>
+        private (List<double> rateList, List<DateTime> dateList) CreateEntries(string abb, Range r)
         {
+            #region Create local variables
+            List<double> rts = new List<double>();              // local list of rates - return
+            List<DateTime> dts = new List<DateTime>();          // local list of dates - return
+            #endregion
 
-            
+            #region Loop through Cubes and Entries in passed Range
 
+            /// Loop through cubes
+            for (int i = 0; i < range.GetCubesCount; i++)
+            {
+                Cube currentCube = range.GetCubeByIndex(i);    // local variable for current cube (shorten lines of code)
+
+                /// Add date to the list
+                dts.Add(currentCube.Date);      // add date from current cube
+
+                /// Add rate to the list of rates
+                /// Loop through entries                
+                for (int j = 0; j < currentCube.GetEntriesCount; j++)
+                {
+                    Entry currentEntry = currentCube.GetEntryByIndex(j);    // local variable for current entry (shorten lines of code)
+
+
+                    // if abbreviation of chosen currency has been found
+                    if (currentEntry.Abbreviation == abb)
+                    {                      
+                        rts.Add(currentCube.GetEntryByIndex(j).Rate);       // save rate of chosen currency into list
+                        break;                                              // break the loop - it in not necesarry to continue the loop
+                    }
+                    
+                    // if it is last entry in the cube and matching abbreviation hasn't been found
+                    // it means the abbreviation isn't mentioned on the list
+                    // save a dummy value to the list
+                    if(j == currentCube.GetEntriesCount - 1)
+                    {
+                        rts.Add(0.0);
+                    }
+                   
+                }// end of second for Loop (entries, index = j)
+
+            }// end of first for Loop (cubes, index = i)
+
+            #endregion
+
+            #region Return region
+            return (rts, dts);
+            #endregion
         }
-        
+
         #endregion
 
 

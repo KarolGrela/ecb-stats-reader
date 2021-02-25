@@ -27,9 +27,59 @@ namespace ecb_stats_reader
         private DateTime adjustedTo;
         private DateTime adjustedFrom;
 
+        /// <summary>
+        /// Inputs - time range (from and to dates)
+        /// Outputs - List of cubes and adjusted "to" and "from" dates
+        /// </summary>
+        /// <param name="f"> "from" date</param>
+        /// <param name="t"> "to" date </param>
+        public Range(DateTime f, DateTime t)
+        {
+            // save dates
+            to = t;
+            from = f;
+            // adjust dates
+            adjustedTo = DateVerification(to, true);
+            adjustedFrom = DateVerification(from, false);
+            // initialize list
+            cubes = new List<Cube>();
+            // read from XML
+            // create and initialize XML Document variable
+            XmlDocument xmlDoc = new XmlDocument();
+            xmlDoc.Load(xmlPath);
+            // initialize node variable
+            node = xmlDoc.DocumentElement;
+            // set currentCube as <Cube time="..."> node
+            XmlNode currentCube = node.FirstChild.NextSibling.NextSibling.FirstChild;
+            // get attributes
+            XmlAttributeCollection attr = currentCube.Attributes;
+            // find "to" date in XML
+            // while date of current cube date is later than adjustedTo
+            // if stops if current cube has date equal to adjustedTo
+            while (DateTime.Compare(DateTime.Parse(attr[0].Value), adjustedTo) == 1)
+            {
+                // go to next sibling
+                currentCube = currentCube.NextSibling;
+                attr = currentCube.Attributes;
+            }
+
+            // go through file and save following cubes untill finding from date cube (exactly - after finding first earlier date than adjustedFrom)
+            while (DateTime.Compare(DateTime.Parse(attr[0].Value), AdjustedFrom) != -1)
+            {
+                // save data to cube
+                cubes.Add(new Cube(currentCube));
+                // go to next sibling
+                currentCube = currentCube.NextSibling;
+                attr = currentCube.Attributes;
+            }
+        }
+
+
+
+
         #region Getters and setters
-        
-        public Cube GetCubeNo(int i)
+
+        public Cube GetCubeByIndex(int i)
         {
             return cubes[i];            
         }
@@ -77,46 +127,7 @@ namespace ecb_stats_reader
 
         #endregion
 
-        public Range(DateTime f, DateTime t)
-        {
-            // save dates
-            to = t;
-            from = f;
-            // adjust dates
-            adjustedTo = DateVerification(to, true);
-            adjustedFrom = DateVerification(from, false);
-            // initialize list
-            cubes = new List<Cube>();
-            // read from XML
-            // create and initialize XML Document variable
-            XmlDocument xmlDoc = new XmlDocument();
-            xmlDoc.Load(xmlPath);
-            // initialize node variable
-            node = xmlDoc.DocumentElement;
-            // set currentCube as <Cube time="..."> node
-            XmlNode currentCube = node.FirstChild.NextSibling.NextSibling.FirstChild;
-            // get attributes
-            XmlAttributeCollection attr = currentCube.Attributes;
-            // find "to" date in XML
-            // while date of current cube date is later than adjustedTo
-            // if stops if current cube has date equal to adjustedTo
-            while(DateTime.Compare(DateTime.Parse(attr[0].Value), adjustedTo)  == 1 )
-            {
-                // go to next sibling
-                currentCube = currentCube.NextSibling;
-                attr = currentCube.Attributes;
-            }
-
-            // go through file and save following cubes untill finding from date cube (exactly - after finding first earlier date than adjustedFrom)
-            while (DateTime.Compare(DateTime.Parse(attr[0].Value), AdjustedFrom) != -1)
-            {
-                // save data to cube
-                cubes.Add(new Cube(currentCube));
-                // go to next sibling
-                currentCube = currentCube.NextSibling;
-                attr = currentCube.Attributes;
-            }
-        }
+       
 
 
         #region Private Methods
