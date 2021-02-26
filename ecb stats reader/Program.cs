@@ -19,6 +19,8 @@ namespace ecb_stats_reader
             // download xml document
             XmlDocument xmlDoc = new XmlDocument();
             xmlDoc.Load("https://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist.xml");
+
+            #region Litter
             /*
             // get first element
             XmlNode node = xmlDoc.DocumentElement;
@@ -137,10 +139,12 @@ namespace ecb_stats_reader
                 Names.Add(name);
             }
             */
+            #endregion
+
 
             /*
              * Generate List of names and abbreviations
-             */
+             *
             CurrencyNameList.Generate();
             foreach (CurrencyName name in CurrencyNameList.Get())
             {
@@ -149,13 +153,13 @@ namespace ecb_stats_reader
 
             /*
              * Generate Range
-             */
+             *
             Range range = new Range(new DateTime(2021, 2, 13), DateTime.Now.AddDays(3));
 
             /*
              * Generate Currency List
-             */
-            Currency dollar = new Currency("dollar", "USD", range);
+             *
+            Currency dollar = new Currency("USD", range);
 
             Console.WriteLine(dollar.GetDatesCount() + " " + dollar.GetRatesCount());
 
@@ -168,12 +172,49 @@ namespace ecb_stats_reader
                 Console.WriteLine();
             }
 
-               
+            */
+            DateTime from = new DateTime(2021, 2, 13);
+            DateTime to = DateTime.Now.AddDays(3);
+            ///(from, to, "USD");
+            preRequest(from, to, "CAD");
+            preRequest(from, to, "UdD");
+            preRequest(from, to, "ZAR");
 
             Console.ReadLine();
         }
 
-    
+        public static void preRequest(DateTime from, DateTime to, string abb)
+        {
+            /*
+             * Generate List of names and abbreviations
+             */
+            CurrencyNameList.Generate();
+            foreach (CurrencyName name in CurrencyNameList.Get())
+            {
+                //Console.WriteLine(name.abbreviation + " is " + name.name);
+            }
+
+            /*
+             * Generate Range
+             */
+            Range range = new Range(from, to);
+
+            /*
+             * Generate Currency List
+             */
+            Currency currency = new Currency(abb, range);
+
+            Console.WriteLine(currency.Name + " (" + currency.Abbreviation + ")");
+
+            for (int i = 0; i < currency.GetDatesCount(); i++)
+            {
+                Console.Write("i: " + (i + 1) + "   ");
+                Console.Write(currency.GetDateByIndex(i).Date + "  ");
+                Console.Write(currency.GetRateByIndex(i));
+                Console.WriteLine();
+            }
+
+        }
 
     }
 }

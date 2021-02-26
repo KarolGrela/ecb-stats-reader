@@ -24,16 +24,39 @@ namespace ecb_stats_reader
         private List<double> rates;     // list of rate values
         private List<DateTime> dates;   // list of dates
 
+
+
         /// <summary>
         /// Inputs: Range, abbreviation of vurrency and other auxiliary data
         /// Outputs: Lists of dates (X axis) and rate values (Y axis)
         /// </summary>
-        /// <param name="n"> name of currency </param>
-        /// <param name="a"> three letter Aabbreviation</param>
-        public Currency(string n, string a, Range r)
+        /// <param name="a">three letter Aabbreviation</param>
+        /// <param name="r">range of data</param>
+        public Currency(string a, Range r)
         {
+            /// Get name of the currency
+            CurrencyNameList.Generate();            // create list of names and abbreviation
+            var nameList = CurrencyNameList.Get();  // save list to variable
+            // Loop through list of names and currencies
+            int j = 0;  // index
+            foreach(CurrencyName currencyName in nameList)
+            {
+                j++;    // increment index, in the beginning, because we refer to first position as 1, and to the last one as equal to nameList.Count
+                // if passed abbreviation and the abbreviation from the list are matching, save name to field and break the Loop
+                if (currencyName.abbreviation == a)
+                {
+                    name = currencyName.name;   // save name to field
+                    break;                      // break the loop
+                }
+                // if last currency in list has been checkd and it doesn't match with passed abbreviation - it means that passed abbreviation doesn't match with any in the list and name should be set to a dummy value
+                if(j==nameList.Count)
+                {
+                    name = "000_dummy_000";
+                }
+            }
+
             // save constructor inputs to fields
-            name = n;
+            name = 
             abbreviation = a;
             range = r;
             toDate = range.AdjustedTo;
