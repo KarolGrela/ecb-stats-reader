@@ -62,7 +62,9 @@ namespace ecb_stats_reader
             toDate = range.AdjustedTo;
             fromDate = range.AdjustedFrom;
 
-            // create Lists of dates and rates
+
+
+            // create and return Lists of dates and rates
             (rates, dates) =  CreateEntries(abbreviation, range);
         }
 
@@ -204,6 +206,9 @@ namespace ecb_stats_reader
                 }// end of second for Loop (entries, index = j)
 
             }// end of first for Loop (cubes, index = i)
+
+            dts.Reverse();
+            rts.Reverse();
 
             #endregion
 
