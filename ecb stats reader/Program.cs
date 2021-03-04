@@ -172,13 +172,27 @@ namespace ecb_stats_reader
                 Console.WriteLine();
             }
 
-            */
+            *
             DateTime from = new DateTime(2021, 2, 13);
             DateTime to = DateTime.Now.AddDays(3);
             ///(from, to, "USD");
             preRequest(from, to, "CAD");
             preRequest(from, to, "UdD");
             preRequest(from, to, "ZAR");
+
+            Console.ReadLine();
+            */
+
+            DateTime from = new DateTime(2019, 2, 13);
+            DateTime to = DateTime.Now.AddDays(3);
+
+            List<string> Req = new List<string>();
+            Req.Add("USD");
+            Req.Add("PLN");
+            Req.Add("ZAR");
+            List<Currency> c = Request.Make(from, to, Req);
+
+
 
             Console.ReadLine();
         }

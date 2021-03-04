@@ -16,7 +16,7 @@ namespace ecb_stats_reader
         // Input Fields
         private string name;            // name of currency
         private string abbreviation;    // abbreviation of currency name
-        private Range range;
+        //private Range range;
         private DateTime toDate;        // "to" date (adjusted)
         private DateTime fromDate;      // "from" date (adjusted)
         
@@ -57,14 +57,14 @@ namespace ecb_stats_reader
 
             // save constructor inputs to fields
             abbreviation = a;
-            range = r;
-            toDate = range.AdjustedTo;
-            fromDate = range.AdjustedFrom;
+            //range = r;
+            toDate = r.AdjustedTo;
+            fromDate = r.AdjustedFrom;
 
 
 
             // create and return Lists of dates and rates
-            (rates, dates) =  CreateEntries(abbreviation, range);
+            (rates, dates) =  CreateEntries(abbreviation, r);
         }
 
         #region Getters and Setter
@@ -173,9 +173,9 @@ namespace ecb_stats_reader
             #region Loop through Cubes and Entries in passed Range
 
             /// Loop through cubes
-            for (int i = 0; i < range.GetCubesCount; i++)
+            for (int i = 0; i < r.GetCubesCount; i++)
             {
-                Cube currentCube = range.GetCubeByIndex(i);    // local variable for current cube (shorten lines of code)
+                Cube currentCube = r.GetCubeByIndex(i);    // local variable for current cube (shorten lines of code)
 
                 /// Add date to the list
                 dts.Add(currentCube.Date);      // add date from current cube
