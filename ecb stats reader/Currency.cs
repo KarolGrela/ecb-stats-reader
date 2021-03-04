@@ -56,7 +56,6 @@ namespace ecb_stats_reader
             }
 
             // save constructor inputs to fields
-            name = 
             abbreviation = a;
             range = r;
             toDate = range.AdjustedTo;
